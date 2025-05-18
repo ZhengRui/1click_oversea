@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10.1"
 dependencies = [
     "crawl4ai>=0.6.3",
+    "icecream>=2.1.4",
 ]
 
 [dependency-groups]
