@@ -413,6 +413,9 @@ async def main():
                     # Post-process the data to clean up and restructure
                     if isinstance(extracted_data, list):
                         for page_data in extracted_data:
+                            # Add the page URL
+                            page_data["url"] = url
+
                             # Combine the title parts if both are present
                             if "product_title_main" in page_data and "product_title_second" in page_data:
                                 print("Combining title parts")
@@ -450,6 +453,16 @@ async def main():
                                     page_data["product_details"] = processed_details
 
                     print(json.dumps(extracted_data, indent=2, ensure_ascii=False))
+
+                    # Save the extracted data to a JSON file
+                    output_dir = base_dir / "data"
+                    output_dir.mkdir(exist_ok=True)
+                    output_file = output_dir / "example_product_data.json"
+
+                    with open(output_file, "w", encoding="utf-8") as f:
+                        json.dump(extracted_data, f, indent=2, ensure_ascii=False)
+
+                    print(f"\nData saved to {output_file}")
                 except json.JSONDecodeError:
                     print("Failed to parse extracted content as JSON. Raw content:")
                     print(result.extracted_content)
