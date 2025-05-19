@@ -481,6 +481,7 @@ CONFIG = {
     "run": {
         "wait_for": "css:div#detailContentContainer",
         "delay_before_return_html": 10,
+        "wait_for_images": True,
         "js_code": [],  # JS code will be added at runtime
     },
     "slices": SLICES_CONFIG,

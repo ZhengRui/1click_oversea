@@ -636,6 +636,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "crawl4ai" },
+    { name = "fastapi" },
     { name = "httpx", extra = ["socks"] },
     { name = "icecream" },
     { name = "pydantic-ai" },
@@ -651,6 +652,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "crawl4ai", specifier = ">=0.6.3" },
+    { name = "fastapi", specifier = ">=0.115.12" },
     { name = "httpx", extras = ["socks"], specifier = ">=0.28.1" },
     { name = "icecream", specifier = ">=2.1.4" },
     { name = "pydantic-ai", specifier = ">=0.2.4" },
@@ -721,6 +723,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/39/5e/2e65de871869530be7b575443ca7cda695c44026c50d37e20d7024b3d74f/fasta2a-0.2.4.tar.gz", hash = "sha256:7afa3fd3205ce3f299b68b2705d285380328a7a4cbd2d230230e66b4701743e8", size = 11558 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9b/29/038b490aca2efdf1fc96224e75acbf6beefd577f12d156729f4b9d721650/fasta2a-0.2.4-py3-none-any.whl", hash = "sha256:3d8b71124739030512c6880d8a78d37bd6c9a099b42d3a772f62747ecef829e9", size = 14369 },
+]
+
+[[package]]
+name = "fastapi"
+version = "0.115.12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "starlette" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f4/55/ae499352d82338331ca1e28c7f4a63bfd09479b16395dce38cf50a39e2c2/fastapi-0.115.12.tar.gz", hash = "sha256:1e2c2a2646905f9e83d32f04a3f86aff4a286669c6c950ca95b5fd68c2602681", size = 295236 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/50/b3/b51f09c2ba432a576fe63758bddc81f78f0c6309d9e5c10d194313bf021e/fastapi-0.115.12-py3-none-any.whl", hash = "sha256:e94613d6c05e27be7ffebdd6ea5f388112e5e430c8f7d6494a9d1d88d43e814d", size = 95164 },
 ]
 
 [[package]]
