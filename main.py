@@ -5,6 +5,7 @@ This script fetches product data from Alibaba's 1688.com wholesale platform
 using the registered alibaba_1688 pipeline.
 """
 
+import argparse
 import asyncio
 import json
 from pathlib import Path
@@ -15,39 +16,41 @@ from lib import PipelineRegistry
 
 
 async def main():
-    # Hard-coded configuration
+    parser = argparse.ArgumentParser(description="Run product extraction pipeline.")
+    parser.add_argument(
+        '--pipeline', type=str, default='alibaba_1688', help='Pipeline name to use (default: alibaba_1688)'
+    )
+    parser.add_argument('--url', type=str, required=True, help='Product URL to scrape')
+    parser.add_argument('--headless', action='store_true', help='Run browser in headless mode')
+    parser.add_argument('--dump_to', type=str, default=None, help='Output file location (if set, will also print)')
+    args = parser.parse_args()
+
     config = {
-        "url": "https://detail.1688.com/offer/764286652699.html",
-        # "url": "https://detail.1688.com/offer/865196865369.html",
-        # "url": "https://detail.1688.com/offer/640756097760.html",
-        # "url": "https://detail.1688.com/offer/802350325795.html",
-        "headless": False,
-        "output": "data/example_product_data.json",
+        "url": args.url,
+        "headless": args.headless,
+        "dump_to": args.dump_to,
         "print": True,
     }
 
-    # Get the pipeline by its registered name
-    pipeline = PipelineRegistry.get("alibaba_1688")
+    pipeline = PipelineRegistry.get(args.pipeline)
 
     if not pipeline:
-        ic("Error: Alibaba 1688 pipeline not found in registry")
+        ic(f"Error: Pipeline '{args.pipeline}' not found in registry")
         return
 
     try:
-        ic("Running pipeline with URL:", config["url"])
+        ic(f"Running pipeline '{args.pipeline}' with URL:", config["url"])
         ic("Headless mode:", config["headless"])
-        ic("Output will be saved to:", config["output"])
+        if config["dump_to"]:
+            ic("Output will be saved to:", config["dump_to"])
 
-        # Run the pipeline with the provided parameters
-        processed_data = await pipeline.run(url=config["url"], headless=config["headless"], dump_to=config["output"])
+        processed_data = await pipeline.run(url=config["url"], headless=config["headless"], dump_to=config["dump_to"])
 
-        # Print the data if requested
-        if config["print"]:
-            formatted_data = json.dumps(processed_data, indent=2, ensure_ascii=False)
-            ic("Processing complete. Extracted data:")
-            print(formatted_data)
-        else:
-            ic("Processing complete. Data saved to:", config["output"])
+        formatted_data = json.dumps(processed_data, indent=2, ensure_ascii=False)
+        ic("Processing complete. Extracted data:")
+        print(formatted_data)
+        if config["dump_to"]:
+            ic("Data also saved to:", config["dump_to"])
 
     except Exception as e:
         ic("Error during pipeline execution:", e)
