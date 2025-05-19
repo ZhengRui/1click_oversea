@@ -13,10 +13,17 @@ from icecream import ic
 
 from lib import PipelineRegistry
 
-url = "https://detail.1688.com/offer/764286652699.html"
-
 
 async def main():
+    # Hard-coded configuration
+    config = {
+        "url": "https://detail.1688.com/offer/764286652699.html",
+        "headless": True,  # Set to True to run in headless mode
+        "output": "data/example_product_data.json",
+        "print": True,  # Set to True to print data to console
+    }
+
+    # Get the pipeline by its registered name
     pipeline = PipelineRegistry.get("alibaba_1688")
 
     if not pipeline:
@@ -24,23 +31,20 @@ async def main():
         return
 
     try:
-        ic("Running pipeline with URL:", url)
+        ic("Running pipeline with URL:", config["url"])
+        ic("Headless mode:", config["headless"])
+        ic("Output will be saved to:", config["output"])
 
-        processed_data = await pipeline.run(url=url)
+        # Run the pipeline with the provided parameters
+        processed_data = await pipeline.run(url=config["url"], headless=config["headless"], dump_to=config["output"])
 
-        formatted_data = json.dumps(processed_data, indent=2, ensure_ascii=False)
-        ic("Processing complete. Extracted data:")
-        print(formatted_data)
-
-        base_dir = Path(__file__).parent
-        output_dir = base_dir / "data"
-        output_dir.mkdir(exist_ok=True)
-        output_file = output_dir / "example_product_data.json"
-
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write(formatted_data)
-
-        ic("Data saved to:", output_file)
+        # Print the data if requested
+        if config["print"]:
+            formatted_data = json.dumps(processed_data, indent=2, ensure_ascii=False)
+            ic("Processing complete. Extracted data:")
+            print(formatted_data)
+        else:
+            ic("Processing complete. Data saved to:", config["output"])
 
     except Exception as e:
         ic("Error during pipeline execution:", e)

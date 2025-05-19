@@ -326,15 +326,15 @@ SLICES_CONFIG = [
 # Comprehensive pipeline configuration for 1688 product pages
 CONFIG = {
     "browser": {
-        "headless": False,
-        "verbose": True,
+        # "headless": False,
+        # "verbose": True,
         "use_managed_browser": True,
         "browser_type": "chromium",
         "user_data_dir": "/Users/zerry/Work/Projects/funs/1click_oversea/data/1688_profile",
     },
     "run": {
         "wait_for": "css:div#detailContentContainer",
-        "delay_before_return_html": 10,
+        "delay_before_return_html": 1,
         "js_code": [],  # JS code will be added at runtime
     },
     "slices": SLICES_CONFIG,
@@ -388,12 +388,6 @@ def create_alibaba_pipeline():
     js_scripts = get_js_scripts(base_dir, selectors)
 
     # Update the run_config with the JS scripts
-    if pipeline.run_config:
-        pipeline.run_config.js_code = js_scripts
-    else:
-        # Create a run config if it doesn't exist
-        pipeline.run_config = CrawlerRunConfig(
-            wait_for="css:div#detailContentContainer", delay_before_return_html=10, js_code=js_scripts
-        )
+    pipeline.run_config.js_code = js_scripts
 
     return pipeline

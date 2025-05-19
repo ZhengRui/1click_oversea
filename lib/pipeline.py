@@ -1,3 +1,6 @@
+import inspect
+import json
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from crawl4ai import AsyncWebCrawler
@@ -207,7 +210,7 @@ class Pipeline:
 
         return result
 
-    async def run(self, url: str) -> Dict[str, Any]:
+    async def run(self, url: str, headless: bool = None, dump_to: str = None) -> Dict[str, Any]:
         """
         Run the pipeline on a URL.
 
@@ -220,6 +223,10 @@ class Pipeline:
 
         Args:
             url (str): The URL to scrape
+            headless (bool, optional): Whether to run in headless mode.
+                      If provided, overrides the browser_config setting.
+            dump_to (str, optional): Path to dump the extracted data to.
+                      If provided, saves the processed data to this location.
 
         Returns:
             Dict[str, Any]: The processed data
@@ -235,6 +242,20 @@ class Pipeline:
         # Get the crawler configs
         browser_config, run_config = self.get_crawler_configs()
 
+        # Override headless setting if provided
+        if headless is not None:
+            browser_config_dict = vars(browser_config).copy()
+            browser_config_dict['headless'] = headless
+
+            browser_config_params = inspect.signature(BrowserConfig.__init__).parameters.keys()
+            filtered_params = {
+                k: v for k, v in browser_config_dict.items() if k in browser_config_params or k == 'self'
+            }
+            if 'self' in filtered_params:
+                del filtered_params['self']
+
+            browser_config = BrowserConfig(**filtered_params)
+
         # Run the crawler
         async with AsyncWebCrawler(config=browser_config) as crawler:
             result = await crawler.arun(url=url, config=run_config)
@@ -244,9 +265,6 @@ class Pipeline:
 
             if not result.extracted_content:
                 return {}
-
-            # Parse the extracted content
-            import json
 
             try:
                 extracted_data = json.loads(result.extracted_content)
@@ -271,5 +289,16 @@ class Pipeline:
             # Apply pipeline post-processor if it exists
             if self.post_processor and processed_data:
                 processed_data = self.post_processor(processed_data)
+
+            # Dump the data to a file if a path is provided
+            if dump_to and processed_data:
+
+                # Ensure the directory exists
+                output_path = Path(dump_to)
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+
+                # Write the data to the file
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    json.dump(processed_data, f, indent=2, ensure_ascii=False)
 
             return processed_data
