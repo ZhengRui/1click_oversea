@@ -151,186 +151,198 @@
       }
     ]
   },
-  "spec_variants": [
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN014D0ypr1kunr9pB1TV_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36-0.8米-黑",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36-0.8米-黑",
-      "颜色": "黑色",
-      "价格(元)": "31.8",
-      "库存": "9886",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01HKZCaJ1kunr8tmtgl_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36-1.8米-黑",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36-1.8米-黑",
-      "颜色": "黑色",
-      "价格(元)": "34.8",
-      "库存": "9902",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01CWej511kunr9mz9AN_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36-2.8米-黑",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36-2.8米-黑",
-      "颜色": "黑色",
-      "价格(元)": "37.8",
-      "库存": "9949",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01M9Z5Lk1kunr9n4qpV_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36-4.8米-黑",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36-4.8米-黑",
-      "颜色": "黑色",
-      "价格(元)": "41.8",
-      "库存": "9972",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN013DnWTK1kunr9pEe2I_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36-0.8米-白",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36-0.8米-白",
-      "颜色": "白色",
-      "价格(元)": "31.8",
-      "库存": "9982",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01m1d8eQ1kunr10vv2O_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36-1.8米-白",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36-1.8米-白",
-      "颜色": "白色",
-      "价格(元)": "34.8",
-      "库存": "9990",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01HVPwK41kunr10zCyd_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36-2.8米-白",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36-2.8米-白",
-      "颜色": "白色",
-      "价格(元)": "37.8",
-      "库存": "9987",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN013XSr5M1kunr8tuPtQ_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36-4.8米-白",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36-4.8米-白",
-      "颜色": "白色",
-      "价格(元)": "41.8",
-      "库存": "9997",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01fi9PY91kunrCqsiwQ_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36无线充-0.8米-黑",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36无线充-0.8米-黑",
-      "颜色": "黑色",
-      "价格(元)": "41.8",
-      "库存": "9956",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01gCIh7o1kunr9pITOT_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36无线充-1.8米-黑",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36无线充-1.8米-黑",
-      "颜色": "黑色",
-      "价格(元)": "44.8",
-      "库存": "9905",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01H8H88T1kunrCr3rio_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36无线充-2.8米-黑",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36无线充-2.8米-黑",
-      "颜色": "黑色",
-      "价格(元)": "47.8",
-      "库存": "9959",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01TIWrI71kunr8tv5Uq_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36无线充-4.8米-黑",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36无线充-4.8米-黑",
-      "颜色": "黑色",
-      "价格(元)": "51.8",
-      "库存": "9968",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01k8t4Se1kunrCQh0KH_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36无线充-0.8米-白",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36无线充-0.8米-白",
-      "颜色": "白色",
-      "价格(元)": "41.8",
-      "库存": "9770",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01AG3ntu1kunr9pHfYb_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36无线充-1.8米-白",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36无线充-1.8米-白",
-      "颜色": "白色",
-      "价格(元)": "44.8",
-      "库存": "9977",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01fCPGnw1kunr9pLd2L_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36无线充-2.8米-白",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36无线充-2.8米-白",
-      "颜色": "白色",
-      "价格(元)": "47.8",
-      "库存": "9994",
-      "进货数量": ""
-    },
-    {
-      "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01AtgxhV1kunr9pPSFm_!!2200728764744-0-cib.jpg",
-      "规格型号": "K36无线充-4.8米-白",
-      "插孔数": "看选项图",
-      "产品系列": "K36黑白无线充插座",
-      "快充标准": "K36无线充-4.8米-白",
-      "颜色": "白色",
-      "价格(元)": "51.8",
-      "库存": "9981",
-      "进货数量": ""
-    }
-  ],
+  "spec_variants": {
+    "names": [
+      "image_url",
+      "规格型号",
+      "插孔数",
+      "产品系列",
+      "快充标准",
+      "颜色",
+      "价格(元)",
+      "库存",
+      "进货数量"
+    ],
+    "values": [
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN014D0ypr1kunr9pB1TV_!!2200728764744-0-cib.jpg",
+        "K36-0.8米-黑",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36-0.8米-黑",
+        "黑色",
+        "31.8",
+        "9886",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01HKZCaJ1kunr8tmtgl_!!2200728764744-0-cib.jpg",
+        "K36-1.8米-黑",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36-1.8米-黑",
+        "黑色",
+        "34.8",
+        "9902",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01CWej511kunr9mz9AN_!!2200728764744-0-cib.jpg",
+        "K36-2.8米-黑",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36-2.8米-黑",
+        "黑色",
+        "37.8",
+        "9949",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01M9Z5Lk1kunr9n4qpV_!!2200728764744-0-cib.jpg",
+        "K36-4.8米-黑",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36-4.8米-黑",
+        "黑色",
+        "41.8",
+        "9972",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN013DnWTK1kunr9pEe2I_!!2200728764744-0-cib.jpg",
+        "K36-0.8米-白",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36-0.8米-白",
+        "白色",
+        "31.8",
+        "9982",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01m1d8eQ1kunr10vv2O_!!2200728764744-0-cib.jpg",
+        "K36-1.8米-白",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36-1.8米-白",
+        "白色",
+        "34.8",
+        "9990",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01HVPwK41kunr10zCyd_!!2200728764744-0-cib.jpg",
+        "K36-2.8米-白",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36-2.8米-白",
+        "白色",
+        "37.8",
+        "9987",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN013XSr5M1kunr8tuPtQ_!!2200728764744-0-cib.jpg",
+        "K36-4.8米-白",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36-4.8米-白",
+        "白色",
+        "41.8",
+        "9997",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01fi9PY91kunrCqsiwQ_!!2200728764744-0-cib.jpg",
+        "K36无线充-0.8米-黑",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36无线充-0.8米-黑",
+        "黑色",
+        "41.8",
+        "9956",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01gCIh7o1kunr9pITOT_!!2200728764744-0-cib.jpg",
+        "K36无线充-1.8米-黑",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36无线充-1.8米-黑",
+        "黑色",
+        "44.8",
+        "9905",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01H8H88T1kunrCr3rio_!!2200728764744-0-cib.jpg",
+        "K36无线充-2.8米-黑",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36无线充-2.8米-黑",
+        "黑色",
+        "47.8",
+        "9959",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01TIWrI71kunr8tv5Uq_!!2200728764744-0-cib.jpg",
+        "K36无线充-4.8米-黑",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36无线充-4.8米-黑",
+        "黑色",
+        "51.8",
+        "9968",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01k8t4Se1kunrCQh0KH_!!2200728764744-0-cib.jpg",
+        "K36无线充-0.8米-白",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36无线充-0.8米-白",
+        "白色",
+        "41.8",
+        "9770",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01AG3ntu1kunr9pHfYb_!!2200728764744-0-cib.jpg",
+        "K36无线充-1.8米-白",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36无线充-1.8米-白",
+        "白色",
+        "44.8",
+        "9977",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01fCPGnw1kunr9pLd2L_!!2200728764744-0-cib.jpg",
+        "K36无线充-2.8米-白",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36无线充-2.8米-白",
+        "白色",
+        "47.8",
+        "9994",
+        ""
+      ],
+      [
+        "https://cbu01.alicdn.com/img/ibank/O1CN01AtgxhV1kunr9pPSFm_!!2200728764744-0-cib.jpg",
+        "K36无线充-4.8米-白",
+        "看选项图",
+        "K36黑白无线充插座",
+        "K36无线充-4.8米-白",
+        "白色",
+        "51.8",
+        "9981",
+        ""
+      ]
+    ]
+  },
   "body_attributes": {
-    "title": "商品属性",
     "attributes": [
       {
         "name": "品牌",
@@ -540,68 +552,27 @@
   ],
   "product_details": {
     "images": [
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01moKd4G1kunrEFq1PU_!!2200728764744-0-cib.jpg?__r__=1705904785265"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01DO5ET01kunr5ZOFzi_!!2200728764744-0-cib.jpg?__r__=1705904785265"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01CYtiux1kunr6daj1Q_!!2200728764744-0-cib.jpg?__r__=1705904785266"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01QvlHoT1kunr5ZMB8V_!!2200728764744-0-cib.jpg?__r__=1705904785266"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01RXUDVW1kunr9mp0V2_!!2200728764744-0-cib.jpg?__r__=1705904785266"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01GmbiAH1kunrEFoPe3_!!2200728764744-0-cib.jpg?__r__=1705904785266"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01waVr3D1kunrBXusGD_!!2200728764744-0-cib.jpg?__r__=1705904785266"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01XcoX281kunrApja8h_!!2200728764744-0-cib.jpg?__r__=1705904785266"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01BU8Z0H1kunrDcfZ8k_!!2200728764744-0-cib.jpg?__r__=1705904785266"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01XSfsEs1kunrCqoxdZ_!!2200728764744-0-cib.jpg?__r__=1705904785266"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN010JHHl71kunr8zp1dx_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN017b7jUa1kunrCqpMcZ_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01YET7dP1kunrApk3K5_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01puEDO11kunr9mpoSo_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN010GCKHJ1kunr6dePn1_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN018ZR1yD1kunrEFrMdX_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01Et8tzk1kunr10kN7F_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01TOyOyf1kunrDcfAGA_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01ne18611kunrBXu0JW_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      },
-      {
-        "url": "https://cbu01.alicdn.com/img/ibank/O1CN01S3qdwv1kunr10lNTp_!!2200728764744-0-cib.jpg?__r__=1705904809258"
-      }
-    ],
-    "title": "商品描述"
+      "https://cbu01.alicdn.com/img/ibank/O1CN01moKd4G1kunrEFq1PU_!!2200728764744-0-cib.jpg?__r__=1705904785265",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01DO5ET01kunr5ZOFzi_!!2200728764744-0-cib.jpg?__r__=1705904785265",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01CYtiux1kunr6daj1Q_!!2200728764744-0-cib.jpg?__r__=1705904785266",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01QvlHoT1kunr5ZMB8V_!!2200728764744-0-cib.jpg?__r__=1705904785266",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01RXUDVW1kunr9mp0V2_!!2200728764744-0-cib.jpg?__r__=1705904785266",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01GmbiAH1kunrEFoPe3_!!2200728764744-0-cib.jpg?__r__=1705904785266",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01waVr3D1kunrBXusGD_!!2200728764744-0-cib.jpg?__r__=1705904785266",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01XcoX281kunrApja8h_!!2200728764744-0-cib.jpg?__r__=1705904785266",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01BU8Z0H1kunrDcfZ8k_!!2200728764744-0-cib.jpg?__r__=1705904785266",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01XSfsEs1kunrCqoxdZ_!!2200728764744-0-cib.jpg?__r__=1705904785266",
+      "https://cbu01.alicdn.com/img/ibank/O1CN010JHHl71kunr8zp1dx_!!2200728764744-0-cib.jpg?__r__=1705904809258",
+      "https://cbu01.alicdn.com/img/ibank/O1CN017b7jUa1kunrCqpMcZ_!!2200728764744-0-cib.jpg?__r__=1705904809258",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01YET7dP1kunrApk3K5_!!2200728764744-0-cib.jpg?__r__=1705904809258",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01puEDO11kunr9mpoSo_!!2200728764744-0-cib.jpg?__r__=1705904809258",
+      "https://cbu01.alicdn.com/img/ibank/O1CN010GCKHJ1kunr6dePn1_!!2200728764744-0-cib.jpg?__r__=1705904809258",
+      "https://cbu01.alicdn.com/img/ibank/O1CN018ZR1yD1kunrEFrMdX_!!2200728764744-0-cib.jpg?__r__=1705904809258",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01Et8tzk1kunr10kN7F_!!2200728764744-0-cib.jpg?__r__=1705904809258",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01TOyOyf1kunrDcfAGA_!!2200728764744-0-cib.jpg?__r__=1705904809258",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01ne18611kunrBXu0JW_!!2200728764744-0-cib.jpg?__r__=1705904809258",
+      "https://cbu01.alicdn.com/img/ibank/O1CN01S3qdwv1kunr10lNTp_!!2200728764744-0-cib.jpg?__r__=1705904809258"
+    ]
   },
   "package_details": null,
   "url": "https://detail.1688.com/offer/764286652699.html",

@@ -10,8 +10,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "args": [
-                "--pipeline", "alibaba_1688",
-                "--url", "https://detail.1688.com/offer/601087178726.html",
+                "--pipeline",
+                "alibaba_1688",
+                "--url",
+                "https://detail.1688.com/offer/601087178726.html",
+                // "https://detail.1688.com/offer/764286652699.html",
                 "--translate"
             ],
             "console": "integratedTerminal",

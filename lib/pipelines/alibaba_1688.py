@@ -27,34 +27,37 @@ def process_spec_variants(variants_data):
     headers = [header.get("name", "") for header in variants_data.get("headers", [])]
     rows = variants_data.get("rows", [])
 
-    # Create a list to store the processed variants data
-    processed_variants = []
+    # Create the result structure with names and values arrays
+    result = {"names": ["image_url"] + headers, "values": []}  # Add image_url as the first column name
 
     # Process each row
     for row in rows:
         cells = row.get("cells", [])
-        # Create a dictionary for this variant by combining headers with cell values
-        variant_dict = {}
+        row_values = []
 
         # Extract image URL from style attribute if available
+        image_url = ""
         if "image_url" in row and row["image_url"]:
             # Extract the URL from background-image: url("URL");
             style = row["image_url"]
             url_match = re.search(r'url\(["\']?(.*?)["\']?\)', style)
             if url_match:
-                variant_dict["image_url"] = url_match.group(1)
+                image_url = url_match.group(1)
 
-        # Zip headers with cell values and create a dictionary
-        for i, header in enumerate(headers):
+        # Add the image URL as the first value in the row
+        row_values.append(image_url)
+
+        # Add cell values
+        for i, _ in enumerate(headers):
             if i < len(cells) and "value" in cells[i]:
-                variant_dict[header] = cells[i]["value"]
+                row_values.append(cells[i]["value"])
             else:
-                variant_dict[header] = ""
+                row_values.append("")
 
-        # Add the variant dictionary to our processed_variants list
-        processed_variants.append(variant_dict)
+        # Add this row's values to the result
+        result["values"].append(row_values)
 
-    return processed_variants
+    return result
 
 
 def process_product_images(images_data):
@@ -98,23 +101,19 @@ def process_product_details(details_data):
         detail_images = []
 
         for image_data in details_data.get("detail_images", []):
-            image_info = {}
-
             # For loaded images, the src will have the actual image
             # For lazy images, use data-lazyload-src if available, otherwise use src (placeholder)
             if "actual_image_src" in image_data and image_data["actual_image_src"]:
-                image_info["url"] = image_data["actual_image_src"]
+                detail_images.append(image_data["actual_image_src"])
             elif "placeholder_src" in image_data and image_data["placeholder_src"]:
                 # Check if this is a placeholder or an actual loaded image
                 if "lazyload.png" not in image_data["placeholder_src"]:
-                    image_info["url"] = image_data["placeholder_src"]
+                    detail_images.append(image_data["placeholder_src"])
                 else:
                     # Skip pure placeholder images with no actual image URL
                     continue
             else:
                 continue  # Skip if no URL is available
-
-            detail_images.append(image_info)
 
         result["images"] = detail_images
 
@@ -201,23 +200,33 @@ def merge_title(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def process_package_details(table_data):
-    """Process the package details table into a list of dicts with headers as keys."""
+    """Process the package details table into a more compact format with names and values arrays."""
     if not table_data or "headers" not in table_data or "rows" not in table_data:
         return None
 
+    # Extract header names
     headers = [header.get("name", "") for header in table_data.get("headers", [])]
     rows = table_data.get("rows", [])
-    processed = []
+
+    # Create the result structure with names and values arrays
+    result = {"names": headers, "values": []}
+
+    # Process each row
     for row in rows:
         cells = row.get("cells", [])
-        row_dict = {}
-        for i, header in enumerate(headers):
+        row_values = []
+
+        # Extract cell values
+        for i, _ in enumerate(headers):
             if i < len(cells) and "value" in cells[i]:
-                row_dict[header] = cells[i]["value"]
+                row_values.append(cells[i]["value"])
             else:
-                row_dict[header] = ""
-        processed.append(row_dict)
-    return processed
+                row_values.append("")
+
+        # Add this row's values to the result
+        result["values"].append(row_values)
+
+    return result
 
 
 # Slice configurations for 1688 product pages
@@ -366,12 +375,12 @@ SLICES_CONFIG = [
         "selector": ".od-pc-attribute",
         "type": "nested",
         "fields": [
-            {
-                "name": "title",
-                "selector": ".offer-title-wrapper",
-                "type": "attribute",
-                "attribute": "data-title",
-            },
+            # {
+            #     "name": "title",
+            #     "selector": ".offer-title-wrapper",
+            #     "type": "attribute",
+            #     "attribute": "data-title",
+            # },
             {
                 "name": "attributes",
                 "selector": ".offer-attr-item",
@@ -413,13 +422,13 @@ SLICES_CONFIG = [
         "type": "nested",
         "post_processor": process_product_details,
         "fields": [
-            {
-                "name": "title",
-                "selector": ".offer-title-wrapper",
-                "type": "attribute",
-                "attribute": "data-title",
-                "default": "",
-            },
+            # {
+            #     "name": "title",
+            #     "selector": ".offer-title-wrapper",
+            #     "type": "attribute",
+            #     "attribute": "data-title",
+            #     "default": "",
+            # },
             {
                 "name": "detail_images",
                 "selector": "img.desc-img-no-load, img.desc-img-loaded",

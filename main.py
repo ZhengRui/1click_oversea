@@ -54,13 +54,15 @@ async def main():
         if config["dump_to"]:
             ic("Output will be saved to:", config["dump_to"])
 
-        # processed_data = await pipeline.run(url=config["url"], headless=config["headless"], dump_to=config["dump_to"])
+        processed_data = await pipeline.run(url=config["url"], headless=config["headless"], dump_to=config["dump_to"])
 
-        # formatted_data = json.dumps(processed_data, indent=2, ensure_ascii=False)
-        # ic("Processing complete. Extracted data:")
-        # print(formatted_data)
-        # if config["dump_to"]:
-        #     ic("Data also saved to:", config["dump_to"])
+        formatted_data = json.dumps(processed_data, indent=2, ensure_ascii=False)
+        ic("Processing complete. Extracted data:")
+        print(formatted_data)
+        if config["dump_to"]:
+            ic("Data also saved to:", config["dump_to"])
+
+        return
 
         processed_data = json.load(open("data/example_product_data.json", "r", encoding="utf-8"))
 
