@@ -3,7 +3,9 @@
   "product_title_second": "带线接线板",
   "sales_count": "1100+",
   "evaluation_count": "4",
+  "price": "¥31.80~¥51.801个起批",
   "logistics": "广东揭阳",
+  "sku_options": null,
   "head_attributes": [
     {
       "name": "品牌",
@@ -323,7 +325,7 @@
       "快充标准": "K36无线充-4.8米-白",
       "颜色": "白色",
       "价格(元)": "51.8",
-      "库存": "9982",
+      "库存": "9981",
       "进货数量": ""
     }
   ],
@@ -601,6 +603,7 @@
     ],
     "title": "商品描述"
   },
+  "package_details": null,
   "url": "https://detail.1688.com/offer/764286652699.html",
   "full_title": "多功能无线充电插座带USB快充插线板家用宿舍创意插排带线接线板"
 }

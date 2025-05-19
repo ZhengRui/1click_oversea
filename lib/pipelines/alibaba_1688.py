@@ -144,6 +144,41 @@ def process_filter_data(filter_data):
     return filter_data
 
 
+def process_sku_options(sku_data_list):
+    """Process SKU options for multiple tables/styles."""
+    if not sku_data_list or not isinstance(sku_data_list, list):
+        return None
+    result = []
+    for sku_data in sku_data_list:
+        category_name = sku_data.get("category_name")
+        options = []
+        # Style 1: color/image style (has image_style field)
+        if "options" in sku_data and sku_data["options"] and "image_style" in sku_data["options"][0]:
+            for option in sku_data["options"]:
+                opt = {}
+                if "title" in option:
+                    opt["title"] = option["title"]
+                if "image_style" in option and option["image_style"]:
+                    style = option["image_style"]
+                    url_match = re.search(r'url\(["\']?(.*?)["\']?\)', style)
+                    if url_match:
+                        opt["image_url"] = url_match.group(1)
+                options.append(opt)
+        # Style 2: spec/price/stock style (has sku_item_options field)
+        elif "sku_item_options" in sku_data:
+            for option in sku_data["sku_item_options"]:
+                opt = {}
+                if "name" in option:
+                    opt["title"] = option["name"]
+                if "price" in option:
+                    opt["price"] = option["price"]
+                if "stock" in option:
+                    opt["stock"] = option["stock"]
+                options.append(opt)
+        result.append({"category_name": category_name, "options": options})
+    return result
+
+
 def merge_title(data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Post-process the entire 1688 product data after extraction.
@@ -159,13 +194,75 @@ def merge_title(data: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
+def process_package_details(table_data):
+    """Process the package details table into a list of dicts with headers as keys."""
+    if not table_data or "headers" not in table_data or "rows" not in table_data:
+        return None
+
+    headers = [header.get("name", "") for header in table_data.get("headers", [])]
+    rows = table_data.get("rows", [])
+    processed = []
+    for row in rows:
+        cells = row.get("cells", [])
+        row_dict = {}
+        for i, header in enumerate(headers):
+            if i < len(cells) and "value" in cells[i]:
+                row_dict[header] = cells[i]["value"]
+            else:
+                row_dict[header] = ""
+        processed.append(row_dict)
+    return processed
+
+
 # Slice configurations for 1688 product pages
 SLICES_CONFIG = [
     {"name": "product_title_main", "selector": ".title-first-column .title-text", "type": "text"},
     {"name": "product_title_second", "selector": ".title-second-column .title-text", "type": "text"},
     {"name": "sales_count", "selector": ".title-sale-column .title-info-number", "type": "text"},
     {"name": "evaluation_count", "selector": ".title-info-number[data-real-number]", "type": "text"},
+    {"name": "price", "selector": ".price-content .price-column", "type": "text"},
     {"name": "logistics", "selector": ".logistics-city", "type": "text"},
+    {
+        "name": "sku_options",
+        "selector": ".sku-module-wrapper",
+        "type": "nested_list",
+        "post_processor": process_sku_options,
+        "fields": [
+            {
+                "name": "category_name",
+                "selector": ".sku-prop-module-name",
+                "type": "text",
+                "default": "",
+            },
+            # Style 1: color/image style
+            {
+                "name": "options",
+                "selector": ".prop-item-wrapper .prop-item",
+                "type": "nested_list",
+                "fields": [
+                    {"name": "title", "selector": ".prop-name", "type": "text", "default": ""},
+                    {
+                        "name": "image_style",
+                        "selector": ".prop-img",
+                        "type": "attribute",
+                        "attribute": "style",
+                        "default": "",
+                    },
+                ],
+            },
+            # Style 2: spec/price/stock style
+            {
+                "name": "sku_item_options",
+                "selector": ".sku-item-wrapper",
+                "type": "nested_list",
+                "fields": [
+                    {"name": "name", "selector": ".sku-item-name", "type": "text", "default": ""},
+                    {"name": "price", "selector": ".discountPrice-price", "type": "text", "default": ""},
+                    {"name": "stock", "selector": ".sku-item-sale-num", "type": "text", "default": ""},
+                ],
+            },
+        ],
+    },
     {
         "name": "head_attributes",
         "selector": ".cpv-item",
@@ -321,6 +418,33 @@ SLICES_CONFIG = [
             },
         ],
     },
+    {
+        "name": "package_details",
+        "selector": ".od-pc-offer-cross .od-pc-offer-table table",
+        "type": "nested",
+        "post_processor": process_package_details,
+        "fields": [
+            {
+                "name": "headers",
+                "selector": "thead th",
+                "type": "list",
+                "fields": [{"name": "name", "type": "text"}],
+            },
+            {
+                "name": "rows",
+                "selector": "tbody tr",
+                "type": "nested_list",
+                "fields": [
+                    {
+                        "name": "cells",
+                        "selector": "td",
+                        "type": "list",
+                        "fields": [{"name": "value", "type": "text"}],
+                    }
+                ],
+            },
+        ],
+    },
 ]
 
 # Comprehensive pipeline configuration for 1688 product pages
@@ -334,7 +458,7 @@ CONFIG = {
     },
     "run": {
         "wait_for": "css:div#detailContentContainer",
-        "delay_before_return_html": 1,
+        "delay_before_return_html": 10,
         "js_code": [],  # JS code will be added at runtime
     },
     "slices": SLICES_CONFIG,

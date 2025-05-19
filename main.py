@@ -18,9 +18,12 @@ async def main():
     # Hard-coded configuration
     config = {
         "url": "https://detail.1688.com/offer/764286652699.html",
-        "headless": True,  # Set to True to run in headless mode
+        # "url": "https://detail.1688.com/offer/865196865369.html",
+        # "url": "https://detail.1688.com/offer/640756097760.html",
+        # "url": "https://detail.1688.com/offer/802350325795.html",
+        "headless": False,
         "output": "data/example_product_data.json",
-        "print": True,  # Set to True to print data to console
+        "print": True,
     }
 
     # Get the pipeline by its registered name
