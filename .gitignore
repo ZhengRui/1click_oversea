@@ -13,5 +13,7 @@ wheels/
 data/*
 !data/
 !data/example_product_data.json
+!data/example_product_data_translated.json
+!data/example_product_page.html
 
 .env

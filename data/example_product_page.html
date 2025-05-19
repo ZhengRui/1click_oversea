@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .product-header {
+            display: flex;
+            gap: 20px;
+        }
+        .product-images {
+            width: 500px;
+        }
+        .main-image {
+            width: 100%;
+            height: 400px;
+            background-color: #f0f0f0;
+            border: 1px solid #eee;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .image-gallery {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+        }
+        .image-thumbnail {
+            width: 80px;
+            height: 80px;
+            border: 1px solid #eee;
+            cursor: pointer;
+        }
+        .image-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-thumbnail.active {
+            border: 2px solid #ee4d2d;
+        }
+        .product-info {
+            flex: 1;
+        }
+        .mall-badge {
+            display: inline-block;
+            background-color: #ee4d2d;
+            color: white;
+            padding: 0 5px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .product-title {
+            font-size: 20px;
+            color: #222;
+            margin-bottom: 10px;
+        }
+        .ratings {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 20px;
+        }
+        .rating-score {
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .stars {
+            color: #ee4d2d;
+            margin-right: 15px;
+        }
+        .sold-count {
+            color: #767676;
+        }
+        .report-link {
+            margin-left: auto;
+            color: #767676;
+            text-decoration: none;
+        }
+        .price-section {
+            margin: 20px 0;
+            padding: 15px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .current-price {
+            font-size: 30px;
+            color: #ee4d2d;
+            font-weight: bold;
+        }
+        .original-price {
+            font-size: 18px;
+            color: #767676;
+            text-decoration: line-through;
+            margin-left: 15px;
+        }
+        .vouchers {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .voucher-label {
+            color: #757575;
+            min-width: 110px;
+        }
+        .voucher {
+            border: 1px solid #ee4d2d;
+            border-radius: 2px;
+            color: #ee4d2d;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .show-all {
+            color: #ee4d2d;
+            cursor: pointer;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        .bundle-deals {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .bundle-badge {
+            border: 1px solid #ee4d2d;
+            border-radius: 2px;
+            color: #ee4d2d;
+            padding: 5px 10px;
+        }
+        .shipping {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .shipping-icon {
+            color: #1a94ff;
+        }
+        .free-shipping {
+            font-weight: bold;
+        }
+        .shipping-note {
+            color: #767676;
+            font-size: 14px;
+        }
+        .guarantee {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .guarantee-item {
+            color: #222;
+        }
+        .dropdown-icon {
+            margin-left: auto;
+        }
+        .model-selection {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .model-options {
+            flex: 1;
+        }
+        .model-option {
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            padding: 10px 15px;
+            width: 100%;
+            background-color: white;
+            text-align: left;
+        }
+        .quantity {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .quantity-controls {
+            display: flex;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+        }
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            font-size: 18px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .qty-input {
+            width: 50px;
+            height: 30px;
+            text-align: center;
+            border: none;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+        }
+        .available {
+            color: #767676;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .add-to-cart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            background-color: rgba(238, 77, 45, 0.1);
+            color: #ee4d2d;
+            border: 1px solid #ee4d2d;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 16px;
+            gap: 10px;
+        }
+        .buy-now {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            background-color: #ee4d2d;
+            color: white;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .product-specs {
+            margin-top: 30px;
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 3px;
+        }
+        .specs-title {
+            font-size: 18px;
+            color: #222;
+            margin-bottom: 15px;
+        }
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .spec-table tr {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .spec-table td {
+            padding: 10px;
+        }
+        .spec-name {
+            color: #757575;
+            width: 30%;
+        }
+        .spec-value {
+            color: #222;
+        }
+        .product-description {
+            margin-top: 30px;
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 3px;
+        }
+        .description-title {
+            font-size: 18px;
+            color: #222;
+            margin-bottom: 15px;
+        }
+        .feature-list {
+            list-style: none;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .checkmark {
+            color: green;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 24px;
+            color: #555;
+        }
+        .product-detail-images {
+            margin-top: 30px;
+        }
+        .detail-image {
+            width: 100%;
+            margin-bottom: 15px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .detail-image img {
+            width: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="loading">Loading product data...</div>
+    </div>
+
+    <template id="product-template">
+        <div class="container">
+            <div class="product-header">
+                <div class="product-images">
+                    <div class="main-image">
+                        <img id="main-product-image" src="" alt="Product Image">
+                    </div>
+                    <div class="image-gallery" id="image-gallery">
+                        <!-- Thumbnails will be dynamically added here -->
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h1 class="product-title">
+                        <span class="mall-badge">Mall</span> <span id="product-title"></span>
+                    </h1>
+
+                    <div class="ratings">
+                        <span class="rating-score" id="rating-score"></span>
+                        <span class="stars">★★★★★</span>
+                        <span class="ratings-count" id="ratings-count"></span>
+                        <span class="sold-count" id="sold-count"></span>
+                        <a href="#" class="report-link">Report</a>
+                    </div>
+
+                    <div class="price-section">
+                        <span class="current-price" id="current-price"></span>
+                        <span class="original-price" id="original-price"></span>
+                    </div>
+
+                    <div class="vouchers">
+                        <span class="voucher-label">Shop Vouchers</span>
+                        <span class="voucher">5% OFF</span>
+                        <span class="voucher">$1 OFF</span>
+                        <span class="voucher">$2 OFF</span>
+                        <span class="voucher">$3 OFF</span>
+                        <span class="voucher">$5 OFF</span>
+                        <span class="show-all">Show All <span>▼</span></span>
+                    </div>
+
+                    <div class="bundle-deals">
+                        <span class="voucher-label">Bundle Deals</span>
+                        <span class="bundle-badge">Any 2 enjoy 3% off</span>
+                    </div>
+
+                    <div class="shipping">
+                        <span class="voucher-label">Shipping</span>
+                        <div>
+                            <div><span class="shipping-icon">🚚</span> Next Day Delivery by 21 May <span>▶</span></div>
+                            <div class="free-shipping">Free shipping</div>
+                            <div class="shipping-note">Get a $2.00 voucher if your order arrives late.</div>
+                        </div>
+                    </div>
+
+                    <div class="guarantee">
+                        <span class="voucher-label">Shopping Guarantee</span>
+                        <span class="guarantee-item">15-Day Free Returns · 100% Authentic · Damage Protection</span>
+                        <span class="dropdown-icon">▼</span>
+                    </div>
+
+                    <div class="model-selection">
+                        <span class="voucher-label">Model</span>
+                        <div class="model-options">
+                            <select class="model-option" id="model-options">
+                                <!-- Options will be dynamically added here -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="quantity">
+                        <span class="voucher-label">Quantity</span>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" id="decrease-qty">−</button>
+                            <input type="text" class="qty-input" id="qty-input" value="1">
+                            <button class="qty-btn" id="increase-qty">+</button>
+                        </div>
+                        <span class="available" id="stock-available"></span>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="add-to-cart">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ee4d2d">
+                                <path d="M12,9V11H10V13H12V15H14V13H16V11H14V9H12M18,17H6V6H18M18,4H6C4.89,4 4,4.89 4,6V17A2,2 0 0,0 6,19H18A2,2 0 0,0 20,17V6C20,4.89 19.1,4 18,4Z" />
+                            </svg>
+                            Add To Cart
+                        </button>
+                        <button class="buy-now">Buy With Voucher<br><span id="buy-price"></span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-specs">
+                <h3 class="specs-title">Product Specifications</h3>
+                <table class="spec-table" id="spec-table">
+                    <!-- Specs will be dynamically added here -->
+                </table>
+            </div>
+
+            <div class="product-description">
+                <h3 class="description-title">Product Description</h3>
+                <p id="product-desc-title"></p>
+                <ul class="feature-list" id="feature-list">
+                    <!-- Features will be dynamically added here -->
+                </ul>
+                <p id="product-model"></p>
+            </div>
+
+            <div class="product-detail-images" id="product-detail-images">
+                <h3 class="description-title">Product Detail Images</h3>
+                <!-- Detail images will be added here dynamically -->
+            </div>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch the product data
+            fetch('example_product_data_translated.json')
+                .then(response => response.json())
+                .then(data => {
+                    // Replace loading screen with product template
+                    const appElement = document.getElementById('app');
+                    const template = document.getElementById('product-template');
+                    appElement.innerHTML = template.innerHTML;
+
+                    // Populate product details
+                    document.getElementById('product-title').textContent = data.product_title_main;
+                    document.getElementById('rating-score').textContent = "4.8"; // Example rating, replace with actual
+                    document.getElementById('ratings-count').textContent = data.evaluation_count + " Ratings";
+                    document.getElementById('sold-count').textContent = data.sales_count + " Sold";
+
+                    // Set price
+                    let price = data.price.split('~')[0].replace('¥', '$');
+                    document.getElementById('current-price').textContent = price;
+                    document.getElementById('original-price').textContent = "$" + (parseFloat(price.substring(1)) * 1.6).toFixed(2); // Example discounted price
+                    document.getElementById('buy-price').textContent = price;
+
+                    // Add product images
+                    const mainImage = document.getElementById('main-product-image');
+                    const gallery = document.getElementById('image-gallery');
+
+                    // Sort images to ensure non-video images come first
+                    const sortedImages = [...data.product_images].sort((a, b) => {
+                        if (a.is_video && !b.is_video) return 1;
+                        if (!a.is_video && b.is_video) return -1;
+                        return 0;
+                    });
+
+                    // Take first 8 non-video images
+                    const displayImages = sortedImages.filter(img => !img.is_video).slice(0, 8);
+
+                    // Set main image
+                    if (displayImages.length > 0) {
+                        mainImage.src = displayImages[0].url;
+                    }
+
+                    // Add thumbnails
+                    displayImages.forEach((image, index) => {
+                        const thumbnail = document.createElement('div');
+                        thumbnail.className = 'image-thumbnail' + (index === 0 ? ' active' : '');
+                        thumbnail.innerHTML = `<img src="${image.url}" alt="Product Image ${index + 1}">`;
+                        thumbnail.addEventListener('click', function() {
+                            // Update main image
+                            mainImage.src = image.url;
+
+                            // Update active state
+                            document.querySelectorAll('.image-thumbnail').forEach(thumb => {
+                                thumb.classList.remove('active');
+                            });
+                            thumbnail.classList.add('active');
+                        });
+                        gallery.appendChild(thumbnail);
+                    });
+
+                    // Add model options
+                    const modelSelect = document.getElementById('model-options');
+                    data.spec_variants.forEach(variant => {
+                        const option = document.createElement('option');
+                        option.textContent = variant.specification_model;
+                        option.value = variant.specification_model;
+                        option.dataset.price = variant.price;
+                        option.dataset.stock = variant.stock;
+                        modelSelect.appendChild(option);
+                    });
+
+                    // Update stock display
+                    document.getElementById('stock-available').textContent = data.spec_variants[0].stock + " pieces available";
+
+                    // Add specs
+                    const specTable = document.getElementById('spec-table');
+                    data.head_attributes.forEach(attr => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="spec-name">${attr.name}</td>
+                            <td class="spec-value">${attr.value}</td>
+                        `;
+                        specTable.appendChild(row);
+                    });
+
+                    // Add product description and features
+                    document.getElementById('product-desc-title').textContent = data.product_title_main;
+
+                    // Example features (would come from the data in a real implementation)
+                    const features = [
+                        "Unique Tower Design, Keep the space clean and efficient",
+                        "Sockets compatible for SG/UK 3-Pin Plugs",
+                        "Equipped with USB ports, Charge multiple devices",
+                        "Surge protection up to 1700J(900J), lightning protection",
+                        "Grounding protection and overload protection",
+                        "Built in 13A(10A) fuse, melt when overloaded to ensure safety"
+                    ];
+
+                    const featureList = document.getElementById('feature-list');
+                    features.forEach(feature => {
+                        const item = document.createElement('li');
+                        item.className = 'feature-item';
+                        item.innerHTML = `<span class="checkmark">✓</span>${feature}`;
+                        featureList.appendChild(item);
+                    });
+
+                    document.getElementById('product-model').textContent = "◆ " + data.spec_variants[0].specification_model;
+
+                    // Add quantity controls functionality
+                    const qtyInput = document.getElementById('qty-input');
+                    const decreaseBtn = document.getElementById('decrease-qty');
+                    const increaseBtn = document.getElementById('increase-qty');
+
+                    decreaseBtn.addEventListener('click', function() {
+                        let qty = parseInt(qtyInput.value);
+                        if (qty > 1) {
+                            qtyInput.value = qty - 1;
+                        }
+                    });
+
+                    increaseBtn.addEventListener('click', function() {
+                        let qty = parseInt(qtyInput.value);
+                        qtyInput.value = qty + 1;
+                    });
+
+                    // Update price and stock when model changes
+                    modelSelect.addEventListener('change', function(e) {
+                        const selectedOption = e.target.options[e.target.selectedIndex];
+                        const price = "$" + selectedOption.dataset.price;
+                        const stock = selectedOption.dataset.stock;
+
+                        document.getElementById('current-price').textContent = price;
+                        document.getElementById('buy-price').textContent = price;
+                        document.getElementById('stock-available').textContent = stock + " pieces available";
+                        document.getElementById('product-model').textContent = "◆ " + selectedOption.value;
+                    });
+
+                    // Add product detail images
+                    const detailImagesContainer = document.getElementById('product-detail-images');
+                    if (data.product_details && data.product_details.images) {
+                        data.product_details.images.forEach((imageObj, index) => {
+                            const detailImageDiv = document.createElement('div');
+                            detailImageDiv.className = 'detail-image';
+
+                            const img = document.createElement('img');
+                            img.src = imageObj.url;
+                            img.alt = `Product Detail Image ${index + 1}`;
+
+                            detailImageDiv.appendChild(img);
+                            detailImagesContainer.appendChild(detailImageDiv);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading product data:', error);
+                    document.getElementById('app').innerHTML = `
+                        <div class="loading">Error loading product data. Please try again later.</div>
+                    `;
+                });
+        });
+    </script>
+</body>
+</html>
