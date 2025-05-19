@@ -1,6 +1,11 @@
-# 1Click Oversea Web Scraping Framework
+# 1Click Oversea Conversion Framework
 
-A modular and flexible web scraping framework for extracting product data from e-commerce platforms, with a current focus on Alibaba's 1688.com wholesale platform.
+A modular framework for converting Chinese online webshop pages (such as Alibaba 1688) into structured formats suitable for deployment on international e-commerce platforms like Shopee, Shopify, and more.
+
+This framework is designed to automate the process of:
+- Extracting (scraping) product data from Chinese e-commerce sites
+- Translating and transforming the data
+- Preparing the data for seamless listing on global platforms
 
 ## Features
 
@@ -20,15 +25,18 @@ cd 1click_oversea
 
 2. Create and activate a virtual environment:
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-3. Install dependencies using `uv`:
-```bash
 # Install uv if you don't have it already
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# Create virtual environment
+uv venv
+
+# Activate virtual environment
+source .venv/bin/activate
+```
+
+3. Install dependencies:
+```bash
 # Install dependencies from the lockfile
 uv sync --frozen
 ```
