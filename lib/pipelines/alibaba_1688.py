@@ -145,7 +145,7 @@ def process_filter_data(filter_data):
 
 
 def process_sku_options(sku_data_list):
-    """Process SKU options for multiple tables/styles."""
+    """Process SKU options for multiple tables/styles, including image for spec/price/stock style."""
     if not sku_data_list or not isinstance(sku_data_list, list):
         return None
     result = []
@@ -174,6 +174,12 @@ def process_sku_options(sku_data_list):
                     opt["price"] = option["price"]
                 if "stock" in option:
                     opt["stock"] = option["stock"]
+                # Extract image_url if present
+                if "image_style" in option and option["image_style"]:
+                    style = option["image_style"]
+                    url_match = re.search(r'url\(["\']?(.*?)["\']?\)', style)
+                    if url_match:
+                        opt["image_url"] = url_match.group(1)
                 options.append(opt)
         result.append({"category_name": category_name, "options": options})
     return result
@@ -259,6 +265,13 @@ SLICES_CONFIG = [
                     {"name": "name", "selector": ".sku-item-name", "type": "text", "default": ""},
                     {"name": "price", "selector": ".discountPrice-price", "type": "text", "default": ""},
                     {"name": "stock", "selector": ".sku-item-sale-num", "type": "text", "default": ""},
+                    {
+                        "name": "image_style",
+                        "selector": ".sku-item-image",
+                        "type": "attribute",
+                        "attribute": "style",
+                        "default": "",
+                    },
                 ],
             },
         ],
