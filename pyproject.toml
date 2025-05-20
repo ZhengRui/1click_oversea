@@ -9,6 +9,7 @@ dependencies = [
     "fastapi>=0.115.12",
     "httpx[socks]>=0.28.1",
     "pydantic-ai>=0.2.4",
+    "websockets>=15.0.1",
 ]
 
 [dependency-groups]

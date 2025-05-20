@@ -78,7 +78,7 @@ def flatten_product_data(data: Dict[str, Any]) -> List[Dict[str, str]]:
 
 
 async def translate_flattened_data(
-    flattened_data: List[Dict[str, str]], chunk_size: int = 50, max_passes: int = 3
+    flattened_data: List[Dict[str, str]], chunk_size: int = 50, max_passes: int = 3, progress_callback=None
 ) -> List[Dict[str, Any]]:
     """
     Translate flattened product data with multiple passes to handle mismatches.
@@ -87,6 +87,7 @@ async def translate_flattened_data(
         flattened_data: A list of dictionaries with 'path' and 'text' keys
         chunk_size: Number of items to translate in each chunk
         max_passes: Maximum number of passes to attempt for full translation
+        progress_callback: Optional callback function for progress updates
 
     Returns:
         A list of dictionaries with 'path', 'text', and 'translation_status' keys
@@ -101,6 +102,18 @@ async def translate_flattened_data(
 
     print(f"Starting translation of {total_items} items with up to {max_passes} passes")
 
+    # Initial progress report
+    if progress_callback:
+        progress_callback(
+            {
+                "stage": "translating",
+                "status": "started",
+                "total_items": total_items,
+                "processed_items": 0,
+                "percent": 0,
+            }
+        )
+
     # Process in multiple passes until everything is translated or max passes reached
     for pass_num in range(1, max_passes + 1):
         if not pending_items:
@@ -114,6 +127,10 @@ async def translate_flattened_data(
 
         # Process in chunks
         chunks = [pending_items[i : i + chunk_size] for i in range(0, len(pending_items), chunk_size)]
+
+        # For progress reporting
+        chunks_completed = 0
+        total_chunks = len(chunks)
 
         for chunk_idx, chunk in enumerate(chunks):
             print(f"  - Chunk {chunk_idx+1}/{len(chunks)}: {len(chunk)} items")
@@ -162,6 +179,27 @@ async def translate_flattened_data(
                 new_pending_items.extend(chunk)
                 print("    - Failed to get valid translations for this chunk")
 
+            # Update progress after each chunk
+            chunks_completed += 1
+            processed_count = len(translations)
+
+            if progress_callback:
+                progress_callback(
+                    {
+                        "stage": "translating",
+                        "status": "in_progress",
+                        "pass": pass_num,
+                        "pass_progress": {
+                            "current_chunk": chunks_completed,
+                            "total_chunks": total_chunks,
+                            "chunk_percent": int(chunks_completed / total_chunks * 100),
+                        },
+                        "total_items": total_items,
+                        "processed_items": processed_count,
+                        "percent": int(processed_count / total_items * 100),
+                    }
+                )
+
         # Update pending items for next pass
         pending_items = new_pending_items
 
@@ -171,6 +209,20 @@ async def translate_flattened_data(
             f"  Pass {pass_num} completed: {processed_count}/{total_items} items processed"
             f" ({int(processed_count/total_items*100)}%)"
         )
+
+        # Progress update after each pass
+        if progress_callback:
+            progress_callback(
+                {
+                    "stage": "translating",
+                    "status": "pass_completed",
+                    "pass": pass_num,
+                    "total_passes": max_passes,
+                    "total_items": total_items,
+                    "processed_items": processed_count,
+                    "percent": int(processed_count / total_items * 100),
+                }
+            )
 
     # For any remaining untranslated items after all passes, use original text and mark as missed
     for item in pending_items:
@@ -198,6 +250,21 @@ async def translate_flattened_data(
     print(f"  - {translated} translated")
     print(f"  - {not_needed} not needing translation")
     print(f"  - {missed} missed after {max_passes} passes")
+
+    # Final progress update
+    if progress_callback:
+        progress_callback(
+            {
+                "stage": "translating",
+                "status": "completed",
+                "total_items": total_items,
+                "processed_items": total_items,
+                "translated": translated,
+                "not_needed": not_needed,
+                "missed": missed,
+                "percent": 100,
+            }
+        )
 
     return result
 
@@ -239,7 +306,9 @@ def rebuild_product_data(original_data: Dict[str, Any], translated_flat_data: Li
     return result
 
 
-async def translate_product_data(data: Dict[str, Any], chunk_size: int = 50, max_passes: int = 3) -> Dict[str, Any]:
+async def translate_product_data(
+    data: Dict[str, Any], chunk_size: int = 50, max_passes: int = 3, progress_callback=None
+) -> Dict[str, Any]:
     """
     Translate product data from Chinese to English.
 
@@ -247,6 +316,7 @@ async def translate_product_data(data: Dict[str, Any], chunk_size: int = 50, max
         data: The product data dictionary
         chunk_size: Number of items to translate in each chunk
         max_passes: Maximum number of passes to attempt for full translation
+        progress_callback: Optional callback function for progress updates
 
     Returns:
         A dictionary with the same structure as data but with translated values
@@ -255,7 +325,7 @@ async def translate_product_data(data: Dict[str, Any], chunk_size: int = 50, max
     flattened_data = flatten_product_data(data)
 
     # Translate the flattened data with multiple passes
-    translated_data = await translate_flattened_data(flattened_data, chunk_size, max_passes)
+    translated_data = await translate_flattened_data(flattened_data, chunk_size, max_passes, progress_callback)
 
     # Rebuild the original structure with translated values
     translated_product = rebuild_product_data(data, translated_data)

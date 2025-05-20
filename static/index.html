@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1Click Oversea Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .section {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        .output-container {
+            display: flex;
+            gap: 20px;
+        }
+        .output-column {
+            flex: 1;
+        }
+        .output-area {
+            flex: 1;
+            height: 600px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-area {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        input, button {
+            padding: 8px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        #progressBar {
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        #progressBarFill {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .status {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-queued { background-color: #f0f0f0; }
+        .status-extracting { background-color: #ffeaa7; }
+        .status-extracted { background-color: #81ecec; }
+        .status-translating { background-color: #74b9ff; }
+        .status-completed { background-color: #55efc4; }
+        .status-failed { background-color: #ff7675; }
+        .full-width {
+            width: 100%;
+        }
+        .half-width {
+            width: 48%; /* slightly less than 50% to account for gap */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>1Click Oversea Demo</h1>
+
+        <div class="section">
+            <div class="input-group">
+                <label for="productUrl">Product URL:</label>
+                <input type="text" id="productUrl" placeholder="Enter product URL from 1688.com" size="60">
+
+                <div>
+                    <input type="checkbox" id="translateCheckbox" checked>
+                    <label for="translateCheckbox">Translate to English</label>
+
+                    <span style="margin-left: 20px;">
+                        <label for="waitFor">Wait time (sec):</label>
+                        <input type="number" id="waitFor" min="1" max="15" value="2" style="width: 60px;">
+                    </span>
+                </div>
+
+                <div class="buttons">
+                    <button id="extractBtn">Extract with WebSocket</button>
+                    <button id="extractRestBtn">Extract with REST API</button>
+                </div>
+
+                <div id="statusContainer">
+                    <p>Status: <span id="statusText" class="status">Ready</span></p>
+                    <div id="progressBar"><div id="progressBarFill"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Log Output</h2>
+            <div class="log-area" id="logOutput"></div>
+            <button id="clearLogBtn" style="margin-top: 10px;">Clear Log</button>
+        </div>
+
+        <div class="section">
+            <h2>Data Output</h2>
+            <div class="output-container">
+                <div class="output-column" id="productDataColumn">
+                    <h3>Product Data</h3>
+                    <div class="output-area" id="productData"></div>
+                </div>
+                <div class="output-column" id="translatedDataColumn" style="display: none;">
+                    <h3>Translated Data</h3>
+                    <div class="output-area" id="translatedData"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const productUrlInput = document.getElementById('productUrl');
+        const translateCheckbox = document.getElementById('translateCheckbox');
+        const extractBtn = document.getElementById('extractBtn');
+        const extractRestBtn = document.getElementById('extractRestBtn');
+        const statusText = document.getElementById('statusText');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const logOutput = document.getElementById('logOutput');
+        const productData = document.getElementById('productData');
+        const translatedData = document.getElementById('translatedData');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        const productDataColumn = document.getElementById('productDataColumn');
+        const translatedDataColumn = document.getElementById('translatedDataColumn');
+
+        // Function to update layout based on translation setting
+        function updateLayout() {
+            if (translateCheckbox.checked) {
+                // Show translated data column and make both columns half width
+                translatedDataColumn.style.display = 'block';
+                productDataColumn.style.width = '48%';
+                translatedDataColumn.style.width = '48%';
+            } else {
+                // Hide translated data column and make product data full width
+                translatedDataColumn.style.display = 'none';
+                productDataColumn.style.width = '100%';
+                // Clear translated data
+                translatedData.textContent = '';
+            }
+        }
+
+        // Update layout on page load and when translation checkbox changes
+        updateLayout();
+        translateCheckbox.addEventListener('change', updateLayout);
+
+        // Log function
+        function log(message, isError = false) {
+            const line = document.createElement('div');
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            if (isError) {
+                line.style.color = 'red';
+            }
+            logOutput.appendChild(line);
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+
+        // Update status display
+        function updateStatus(status) {
+            statusText.textContent = status;
+            statusText.className = 'status status-' + status.toLowerCase();
+        }
+
+        // Update progress bar
+        function updateProgress(percent) {
+            progressBarFill.style.width = `${percent}%`;
+        }
+
+        // Display JSON data
+        function displayData(element, data) {
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // WebSocket extraction
+        extractBtn.addEventListener('click', () => {
+            const url = productUrlInput.value.trim();
+            if (!url) {
+                log('Please enter a product URL', true);
+                return;
+            }
+
+            // Clear previous data
+            productData.textContent = '';
+            translatedData.textContent = '';
+            updateStatus('Connecting');
+            updateProgress(0);
+            updateLayout(); // Update layout based on current translation setting
+
+            log(`Starting WebSocket extraction for URL: ${url}`);
+
+            // Create WebSocket connection
+            const ws = new WebSocket(`ws://${window.location.host}/ws/extract`);
+
+            ws.onopen = () => {
+                log('WebSocket connection established');
+                updateStatus('Connected');
+
+                // Get wait time
+                const waitFor = parseInt(document.getElementById('waitFor').value) || 2;
+
+                // Send extraction request
+                ws.send(JSON.stringify({
+                    url: url,
+                    translate: translateCheckbox.checked,
+                    wait_for: waitFor
+                }));
+
+                log(`Sent request for URL: ${url} (translate: ${translateCheckbox.checked}, wait: ${waitFor}s)`);
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                // Handle different progress updates
+                if (data.status) {
+                    updateStatus(data.status.charAt(0).toUpperCase() + data.status.slice(1));
+                }
+
+                // Log progress information
+                if (data.progress) {
+                    const progress = data.progress;
+
+                    if (progress.stage === 'extraction') {
+                        log(`Extraction: ${progress.status}`);
+                    }
+                    else if (progress.stage === 'translating') {
+                        // For chunk progress updates
+                        if (progress.status === 'in_progress' && progress.pass_progress) {
+                            const chunkInfo = progress.pass_progress;
+                            log(`Translation Pass ${progress.pass}: Processing chunk ${chunkInfo.current_chunk}/${chunkInfo.total_chunks} (${progress.percent}% complete)`);
+                            updateProgress(progress.percent);
+                        }
+                        // For pass completion
+                        else if (progress.status === 'pass_completed') {
+                            log(`Translation Pass ${progress.pass} completed: ${progress.processed_items}/${progress.total_items} items (${progress.percent}% complete)`);
+                            updateProgress(progress.percent);
+                        }
+                        // For translation start/completion
+                        else {
+                            log(`Translation: ${progress.status}`);
+                            if (progress.status === 'completed') {
+                                updateProgress(100);
+                                log(`Translation completed: ${progress.translated} translated, ${progress.not_needed} not needed, ${progress.missed} missed`);
+                            }
+                        }
+                    }
+                }
+
+                // Display data when available
+                if (data.data) {
+                    displayData(productData, data.data);
+                    log('Received product data');
+                }
+
+                if (data.translated_data) {
+                    displayData(translatedData, data.translated_data);
+                    log('Received translated data');
+                }
+
+                // Handle errors
+                if (data.error) {
+                    log(`Error: ${data.error}`, true);
+                    updateStatus('Failed');
+                }
+
+                if (data.status === 'completed') {
+                    ws.close();
+                    log('Processing completed');
+                }
+            };
+
+            ws.onclose = () => {
+                log('WebSocket connection closed');
+            };
+
+            ws.onerror = (error) => {
+                log(`WebSocket error: ${error}`, true);
+                updateStatus('Failed');
+            };
+        });
+
+        // REST API extraction
+        extractRestBtn.addEventListener('click', async () => {
+            const url = productUrlInput.value.trim();
+            if (!url) {
+                log('Please enter a product URL', true);
+                return;
+            }
+
+            // Clear previous data
+            productData.textContent = '';
+            translatedData.textContent = '';
+            updateStatus('Starting');
+            updateProgress(0);
+            updateLayout(); // Update layout based on current translation setting
+
+            try {
+                // Start API request
+                log(`Starting REST API extraction for URL: ${url}`);
+
+                // Get wait time
+                const waitFor = parseInt(document.getElementById('waitFor').value) || 2;
+
+                if (translateCheckbox.checked) {
+                    // For translation, we need to handle the job polling
+                    const response = await fetch(`/extract?url=${encodeURIComponent(url)}&translate=true&wait_for=${waitFor}`);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const jobData = await response.json();
+                    const jobId = jobData.job_id;
+
+                    if (!jobId) {
+                        throw new Error('No job ID returned');
+                    }
+
+                    log(`Received job ID: ${jobId}`);
+                    updateStatus('Queued');
+
+                    // Poll for job status
+                    let completed = false;
+                    let pollCount = 0;
+
+                    while (!completed && pollCount < 300) { // Limit to prevent infinite loops
+                        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between polls
+
+                        const statusResponse = await fetch(`/job_status/${jobId}`);
+
+                        if (!statusResponse.ok) {
+                            throw new Error(`HTTP error! status: ${statusResponse.status}`);
+                        }
+
+                        const statusData = await statusResponse.json();
+                        const status = statusData.status;
+
+                        updateStatus(status.charAt(0).toUpperCase() + status.slice(1));
+                        log(`Job status: ${status}`);
+
+                        // Handle progress information
+                        if (statusData.progress) {
+                            const progress = statusData.progress;
+
+                            if (progress.stage === 'translating' && progress.percent) {
+                                updateProgress(progress.percent);
+
+                                if (progress.status === 'in_progress' && progress.pass_progress) {
+                                    const chunkInfo = progress.pass_progress;
+                                    log(`Translation Pass ${progress.pass}: Processing chunk ${chunkInfo.current_chunk}/${chunkInfo.total_chunks} (${progress.percent}% complete)`);
+                                }
+                            }
+                        }
+
+                        // Handle completion and error cases
+                        if (status === 'completed') {
+                            completed = true;
+                            updateProgress(100);
+
+                            // Display data
+                            if (statusData.data) {
+                                displayData(productData, statusData.data);
+                                log('Received product data');
+                            }
+
+                            if (statusData.translated_data) {
+                                displayData(translatedData, statusData.translated_data);
+                                log('Received translated data');
+                            }
+                        }
+                        else if (status === 'failed') {
+                            completed = true;
+                            log(`Job failed: ${statusData.error || 'Unknown error'}`, true);
+                        }
+
+                        pollCount++;
+                    }
+
+                    if (!completed) {
+                        throw new Error('Timed out waiting for job completion');
+                    }
+                }
+                else {
+                    // For non-translation requests, we get the result immediately
+                    const response = await fetch(`/extract?url=${encodeURIComponent(url)}&wait_for=${waitFor}`);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    displayData(productData, data);
+                    log('Received product data');
+                    updateStatus('Completed');
+                    updateProgress(100);
+                }
+
+            } catch (error) {
+                log(`Error: ${error.message}`, true);
+                updateStatus('Failed');
+            }
+        });
+
+        // Optional: Add example URL for testing
+        document.addEventListener('DOMContentLoaded', () => {
+            productUrlInput.value = 'https://detail.1688.com/offer/764286652699.html';
+        });
+
+        // Clear log button
+        clearLogBtn.addEventListener('click', () => {
+            logOutput.innerHTML = '';
+        });
+    </script>
+</body>
+</html>
