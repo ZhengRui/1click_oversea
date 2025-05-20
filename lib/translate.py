@@ -1,6 +1,8 @@
 import json
 import os
-from typing import Any, Dict, Optional, Tuple
+import re
+from enum import Enum
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import httpx
 from dotenv import load_dotenv
@@ -9,7 +11,7 @@ from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.openai import OpenAIProvider
 
-from .prompts import translate_system
+from .prompts import translate_system, translate_user_template
 
 load_dotenv(override=True)
 
@@ -21,139 +23,241 @@ else:
 
 model = OpenAIModel('gpt-4o-mini', provider=OpenAIProvider(http_client=client))
 
-agent = Agent(model=model, system_prompt=translate_system)
+agent = Agent(model=model, system_prompt=translate_system, retries=3)
 
 
-def split_product_data(product_data: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+# Define translation status enum
+class TranslationStatus(str, Enum):
+    TRANSLATED = "translated"
+    NOT_NEEDED = "not_needed"
+    MISSED = "missed"
+
+
+# Define Pydantic models for structured output
+class TranslationItem(BaseModel):
+    path: str
+    original_text: str
+    should_translate: bool
+    translated_text: Optional[str] = None
+
+
+class TranslationResponse(BaseModel):
+    translations: List[TranslationItem]
+
+
+def flatten_product_data(data: Dict[str, Any]) -> List[Dict[str, str]]:
     """
-    Split product data into parts that need translation and parts that don't.
+    Flatten a nested product data structure into a list of path and text pairs.
 
     Args:
-        product_data (Dict[str, Any]): The complete product data dictionary
+        data: The product data dictionary
 
     Returns:
-        Tuple[Dict[str, Any], Dict[str, Any]]: A tuple containing:
-            - Dictionary of data that needs translation
-            - Dictionary of data that doesn't need translation
+        A list of dictionaries with 'path' and 'text' keys
     """
-    # Make a deep copy to avoid modifying the original data
-    translatable_data = {}
-    non_translatable_data = {}
+    result = []
 
-    # Top-level keys that don't need translation at all
-    fully_non_translatable_keys = {'product_images', 'url'}
+    def _flatten(obj, path=""):
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                new_path = f"{path}.{key}" if path else key
+                if isinstance(value, (dict, list)):
+                    _flatten(value, new_path)
+                elif value is not None:
+                    result.append({"path": new_path, "text": str(value)})
+        elif isinstance(obj, list):
+            for i, item in enumerate(obj):
+                new_path = f"{path}[{i}]"
+                if isinstance(item, (dict, list)):
+                    _flatten(item, new_path)
+                elif item is not None:
+                    result.append({"path": new_path, "text": str(item)})
 
-    # Process each key in the product data
-    for key, value in product_data.items():
-        if key in fully_non_translatable_keys:
-            # These keys don't need any translation
-            non_translatable_data[key] = value
-        elif key == 'product_details':
-            # Special handling for product_details
-            if isinstance(value, dict):
-                translatable_detail = {}
-                non_translatable_detail = {}
+    _flatten(data)
+    return result
 
-                # Only title needs translation in product_details
-                if 'title' in value:
-                    translatable_detail['title'] = value['title']
 
-                # Images don't need translation
-                if 'images' in value:
-                    non_translatable_detail['images'] = value['images']
+async def translate_flattened_data(
+    flattened_data: List[Dict[str, str]], chunk_size: int = 50, max_passes: int = 3
+) -> List[Dict[str, Any]]:
+    """
+    Translate flattened product data with multiple passes to handle mismatches.
 
-                # Add to respective dictionaries if they have content
-                if translatable_detail:
-                    translatable_data['product_details'] = translatable_detail
-                if non_translatable_detail:
-                    non_translatable_data['product_details'] = non_translatable_detail
+    Args:
+        flattened_data: A list of dictionaries with 'path' and 'text' keys
+        chunk_size: Number of items to translate in each chunk
+        max_passes: Maximum number of passes to attempt for full translation
+
+    Returns:
+        A list of dictionaries with 'path', 'text', and 'translation_status' keys
+    """
+    # Store translation results and tracking
+    translations = {}
+    status_map = {}  # Maps path to TranslationStatus
+
+    # Start with all items pending
+    pending_items = flattened_data.copy()
+    total_items = len(flattened_data)
+
+    print(f"Starting translation of {total_items} items with up to {max_passes} passes")
+
+    # Process in multiple passes until everything is translated or max passes reached
+    for pass_num in range(1, max_passes + 1):
+        if not pending_items:
+            print(f"All items translated after {pass_num-1} passes")
+            break
+
+        print(f"Pass {pass_num}/{max_passes}: Processing {len(pending_items)} items")
+
+        # Items that remain untranslated after this pass
+        new_pending_items = []
+
+        # Process in chunks
+        chunks = [pending_items[i : i + chunk_size] for i in range(0, len(pending_items), chunk_size)]
+
+        for chunk_idx, chunk in enumerate(chunks):
+            print(f"  - Chunk {chunk_idx+1}/{len(chunks)}: {len(chunk)} items")
+
+            # Create a lookup dict for this chunk
+            chunk_dict = {item["path"]: item for item in chunk}
+
+            # Format chunk data as JSON string
+            chunk_json = json.dumps(chunk, ensure_ascii=False, indent=2)
+
+            # Create user prompt with the chunk data
+            user_prompt = translate_user_template.format(data=chunk_json)
+
+            # Use structured output with the agent
+            result = await agent.run(user_prompt, output_type=TranslationResponse)
+
+            # Process the results
+            if result.output and hasattr(result.output, "translations"):
+                # Track which paths were processed in the response
+                processed_paths = set()
+
+                # Process each returned translation
+                for item in result.output.translations:
+                    processed_paths.add(item.path)
+
+                    if item.should_translate and item.translated_text:
+                        # Store translated text and mark as translated
+                        translations[item.path] = item.translated_text
+                        status_map[item.path] = TranslationStatus.TRANSLATED
+                    else:
+                        # Use original text for items not needing translation
+                        translations[item.path] = chunk_dict.get(item.path, {}).get("text", "")
+                        status_map[item.path] = TranslationStatus.NOT_NEEDED
+
+                # Find items that weren't returned by the model
+                for path, item in chunk_dict.items():
+                    if path not in processed_paths:
+                        new_pending_items.append(item)
+
+                print(
+                    f"    - Processed: {len(processed_paths)}/{len(chunk)} items,"
+                    f" {len(chunk) - len(processed_paths)} missing"
+                )
             else:
-                # If it's not a dict, default to translatable
-                translatable_data[key] = value
-        else:
-            # All other keys need translation
-            translatable_data[key] = value
+                # If no valid response, retry the entire chunk in the next pass
+                new_pending_items.extend(chunk)
+                print("    - Failed to get valid translations for this chunk")
 
-    return translatable_data, non_translatable_data
+        # Update pending items for next pass
+        pending_items = new_pending_items
+
+        # Log progress
+        processed_count = len(translations)
+        print(
+            f"  Pass {pass_num} completed: {processed_count}/{total_items} items processed"
+            f" ({int(processed_count/total_items*100)}%)"
+        )
+
+    # For any remaining untranslated items after all passes, use original text and mark as missed
+    for item in pending_items:
+        translations[item["path"]] = item["text"]
+        status_map[item["path"]] = TranslationStatus.MISSED
+
+    # Reconstruct the result in the original order with translation status
+    result = []
+    for item in flattened_data:
+        path = item["path"]
+        result.append(
+            {
+                "path": path,
+                "text": translations.get(path, item["text"]),
+                "translation_status": status_map.get(path, TranslationStatus.MISSED),
+            }
+        )
+
+    # Log translation statistics
+    translated = sum(1 for item in result if item["translation_status"] == TranslationStatus.TRANSLATED)
+    not_needed = sum(1 for item in result if item["translation_status"] == TranslationStatus.NOT_NEEDED)
+    missed = sum(1 for item in result if item["translation_status"] == TranslationStatus.MISSED)
+
+    print(f"Translation completed: {len(result)}/{total_items} total items")
+    print(f"  - {translated} translated")
+    print(f"  - {not_needed} not needing translation")
+    print(f"  - {missed} missed after {max_passes} passes")
+
+    return result
 
 
-def merge_product_data(translated_data: Dict[str, Any], non_translatable_data: Dict[str, Any]) -> Dict[str, Any]:
+def rebuild_product_data(original_data: Dict[str, Any], translated_flat_data: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Merge the translated data with the non-translatable data to create a complete product data.
+    Rebuild the original data structure with translated values.
 
     Args:
-        translated_data (Dict[str, Any]): The translated part of the product data
-        non_translatable_data (Dict[str, Any]): The non-translatable part of the product data
+        original_data: The original product data structure
+        translated_flat_data: A list of dictionaries with 'path' and translated 'text' keys
 
     Returns:
-        Dict[str, Any]: Complete merged product data
+        A dictionary with the same structure as original_data but with translated values
     """
-    # Start with the translated data
-    merged_data = {**translated_data}
+    # Create a deep copy of the original data to avoid modifying it
+    result = json.loads(json.dumps(original_data))
 
-    # Merge non-translatable top-level keys
-    for key, value in non_translatable_data.items():
-        if key not in merged_data:
-            # If the key doesn't exist in merged_data, add it directly
-            merged_data[key] = value
-        elif key == 'product_details' and isinstance(value, dict) and isinstance(merged_data.get(key), dict):
-            # Special handling for product_details
-            # Merge the images from non-translatable with the translated title
-            merged_data[key] = {**merged_data[key], **value}
-        # For other keys that exist in both, the translated version has priority
+    # Create a map of path to translated text
+    path_to_text = {item["path"]: item["text"] for item in translated_flat_data}
 
-    return merged_data
+    def _update_value(obj: Union[Dict, List], path: str) -> None:
+        if isinstance(obj, dict):
+            for key, value in list(obj.items()):
+                current_path = f"{path}.{key}" if path else key
+                if isinstance(value, (dict, list)):
+                    _update_value(value, current_path)
+                elif current_path in path_to_text:
+                    obj[key] = path_to_text[current_path]
+        elif isinstance(obj, list):
+            for i, item in enumerate(obj):
+                current_path = f"{path}[{i}]"
+                if isinstance(item, (dict, list)):
+                    _update_value(item, current_path)
+                elif current_path in path_to_text:
+                    obj[i] = path_to_text[current_path]
+
+    _update_value(result, "")
+    return result
 
 
-class TranslatedData(BaseModel):
+async def translate_product_data(data: Dict[str, Any], chunk_size: int = 50, max_passes: int = 3) -> Dict[str, Any]:
     """
-    A Pydantic model that represents the translated data.
-    This model acts as both a validator and type definition.
-    """
-
-    data: Dict[str, Any] = Field(description="The translated data with the same structure as the original")
-
-
-async def translate_data(data_to_translate: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Translate the given data from Chinese to English.
+    Translate product data from Chinese to English.
 
     Args:
-        data_to_translate (Dict[str, Any]): The data to translate
+        data: The product data dictionary
+        chunk_size: Number of items to translate in each chunk
+        max_passes: Maximum number of passes to attempt for full translation
 
     Returns:
-        Dict[str, Any]: The translated data
+        A dictionary with the same structure as data but with translated values
     """
-    # Convert to JSON string for the prompt
-    data_json = json.dumps(data_to_translate, ensure_ascii=False, indent=2)
+    # Flatten the product data
+    flattened_data = flatten_product_data(data)
 
-    # Create the prompt
-    user_prompt = f"Please translate the following product data from Chinese to English:\n\n```json\n{data_json}\n```"
+    # Translate the flattened data with multiple passes
+    translated_data = await translate_flattened_data(flattened_data, chunk_size, max_passes)
 
-    # Use the agent to get a structured response
-    result = await agent.run(user_prompt, output_type=TranslatedData)
+    # Rebuild the original structure with translated values
+    translated_product = rebuild_product_data(data, translated_data)
 
-    # Return the validated data
-    return result.data
-
-
-async def translate_product(product_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Translate a product from Chinese to English.
-
-    Args:
-        product_data (Dict[str, Any]): The complete product data
-
-    Returns:
-        Dict[str, Any]: The translated product data
-    """
-    # Split the data
-    translatable, non_translatable = split_product_data(product_data)
-
-    # Translate the translatable part
-    translated_data = await translate_data(translatable)
-
-    # Merge the data back together
-    complete_data = merge_product_data(translated_data, non_translatable)
-
-    return complete_data
+    return translated_product
