@@ -12,6 +12,9 @@
 - 具有`Slice`和`Pipeline`类的模块化架构，用于数据提取
 - 自动管道注册机制
 - 使用`crawl4ai`进行无头浏览器自动化
+- 具有进度跟踪的多次中英文翻译
+- 通过WebSocket API实时更新进度
+- 用于测试提取和翻译的交互式演示界面
 - 灵活的数据处理与前/后处理器
 - 输出结构化产品数据的JSON格式
 
@@ -71,7 +74,7 @@ python -m playwright install --dry-run
 
 ```bash
 usage: main.py [-h] [--pipeline PIPELINE] --url URL [--headless] [--dump_to DUMP_TO] [--translate]
-               [--translated_output TRANSLATED_OUTPUT]
+               [--translated_output TRANSLATED_OUTPUT] [--wait_for WAIT_FOR]
 
 运行产品提取管道。
 
@@ -82,6 +85,9 @@ usage: main.py [-h] [--pipeline PIPELINE] --url URL [--headless] [--dump_to DUMP
   --headless            在无头模式下运行浏览器
   --dump_to DUMP_TO     输出文件位置（如果设置，也会打印）
   --wait_for WAIT_FOR   返回HTML前的延迟秒数（默认：10）
+  --translate           将产品数据翻译成英文
+  --translated_output TRANSLATED_OUTPUT
+                        翻译数据的输出文件（如果未指定，默认为[原始文件名]_translated.json）
 ```
 
    a. 首次运行脚本时，使用有头模式（不带`--headless`标志）登录1688.com：
@@ -96,7 +102,12 @@ usage: main.py [-h] [--pipeline PIPELINE] --url URL [--headless] [--dump_to DUMP
    python main.py --pipeline alibaba_1688 --url https://detail.1688.com/offer/865196865369.html --dump_to data/example_product_data.json --headless
    ```
 
-   d. 要提高性能，可以使用`--wait_for`参数调整抓取延迟时间：
+   d. 要将产品数据翻译成英文，添加`--translate`标志：
+   ```bash
+   python main.py --pipeline alibaba_1688 --url https://detail.1688.com/offer/865196865369.html --dump_to data/example_product_data.json --headless --translate
+   ```
+
+   e. 要提高性能，可以使用`--wait_for`参数调整抓取延迟时间：
    ```bash
    # 使用较短的延迟（2秒而不是默认的10秒）
    python main.py --pipeline alibaba_1688 --url https://detail.1688.com/offer/865196865369.html --headless --wait_for 2
@@ -122,23 +133,56 @@ usage: main.py [-h] [--pipeline PIPELINE] --url URL [--headless] [--dump_to DUMP
    python serv.py
    ```
 
-   b. API将在http://localhost:8000 上可用，具有以下端点：
-      - `/` - 关于API的基本信息
-      - `/extract` - 从URL提取产品数据
+   b. 在浏览器中打开演示界面：
+      - http://localhost:8000/demo - 用于测试提取和翻译的交互式演示UI
 
-   c. 使用curl的API使用示例：
+   c. API将提供以下端点：
+      - `/api` - 关于API的基本信息
+      - `/extract` - 从URL提取产品数据
+      - `/job_status/{job_id}` - 检查翻译任务的状态
+      - `/ws/extract` - 用于实时提取和翻译更新的WebSocket端点
+
+   d. 使用curl的API使用示例：
    ```bash
    # 使用默认设置提取URL的数据（pipeline=alibaba_1688，wait_for=2）
    curl -X GET "http://localhost:8000/extract?url=https://detail.1688.com/offer/865196865369.html"
 
+   # 提取并翻译数据（返回一个job_id用于轮询）
+   curl -X GET "http://localhost:8000/extract?url=https://detail.1688.com/offer/865196865369.html&translate=true"
+
+   # 检查翻译任务状态
+   curl -X GET "http://localhost:8000/job_status/{job_id}"
+
    # 使用自定义等待时间（1秒）提取数据
    curl -X GET "http://localhost:8000/extract?url=https://detail.1688.com/offer/865196865369.html&wait_for=1"
-
-   # 使用不同的管道提取数据
-   curl -X GET "http://localhost:8000/extract?url=https://detail.1688.com/offer/865196865369.html&pipeline_name=custom_pipeline"
    ```
 
-   d. API默认以无头模式运行，等待时间较短（2秒），以获得更好的性能。这适用于不需要浏览器UI的生产环境。
+   e. API默认以无头模式运行，等待时间较短（2秒），以获得更好的性能。这适用于不需要浏览器UI的生产环境。
+
+## 翻译功能
+
+该框架包含一个专为电子商务产品数据设计的强大中英文翻译系统：
+
+- **智能字段检测**：自动识别哪些字段应该被翻译，哪些应该保持不变（例如SKU、尺寸、URL）
+- **多次处理**：使用多次传递确保所有项目都被翻译，即使在初始尝试中有些被遗漏
+- **分块处理**：以可管理的块处理数据，有效处理大型产品数据集
+- **详细状态跟踪**：每个字段都标有其翻译状态：
+  - `TRANSLATED`：成功从中文翻译成英文
+  - `NOT_NEEDED`：识别为不需要翻译（例如数字、代码）
+  - `MISSED`：多次尝试后未能翻译
+- **实时进度更新**：使用WebSocket API时，在翻译过程中接收逐块进度更新
+
+## 交互式演示UI
+
+该框架包含一个基于浏览器的演示界面，用于测试提取和翻译：
+
+1. 启动服务器：`python serv.py`
+2. 在浏览器中打开 http://localhost:8000/demo
+3. 输入产品URL
+4. 选择翻译选项和等待时间
+5. 选择WebSocket（实时更新）或REST API提取
+6. 实时查看提取进度
+7. 并排查看原始数据和翻译后的数据
 
 ## 项目结构
 
@@ -146,13 +190,18 @@ usage: main.py [-h] [--pipeline PIPELINE] --url URL [--headless] [--dump_to DUMP
   - `pipeline.py`：用于编排数据提取的Pipeline类
   - `slice.py`：用于定义提取单元的Slice类
   - `registry.py`：用于管道管理的注册表
+  - `translate.py`：中英文转换的翻译功能
+  - `prompts.py`：翻译AI的系统提示
   - `pipelines/`：各种管道实现
     - `alibaba_1688.py`：1688.com特定的管道
 - `utils/`：实用脚本
   - `highlight.js`：用于高亮元素的JavaScript
   - `simHover.js`：用于模拟悬停事件的JavaScript
+- `static/`：前端资源
+  - `index.html`：用于提取和翻译测试的演示UI
 - `data/`：提取数据的输出目录
-- `main.py`：运行提取的主脚本
+- `main.py`：运行提取的CLI脚本
+- `serv.py`：带有WebSocket支持的API服务器
 
 ## 创建自定义管道
 

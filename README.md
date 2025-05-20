@@ -12,6 +12,9 @@ This framework is designed to automate the process of:
 - Modular architecture with `Slice` and `Pipeline` classes for data extraction
 - Automatic pipeline registration mechanism
 - Headless browser automation using `crawl4ai`
+- Multi-pass Chinese to English translation with progress tracking
+- Real-time progress updates via WebSocket API
+- Interactive demo interface for testing extraction and translation
 - Flexible data processing with pre/post-processors
 - JSON output with structured product data
 
@@ -71,7 +74,7 @@ python -m playwright install --dry-run
 
     ```bash
     usage: main.py [-h] [--pipeline PIPELINE] --url URL [--headless] [--dump_to DUMP_TO] [--translate]
-                  [--translated_output TRANSLATED_OUTPUT]
+                  [--translated_output TRANSLATED_OUTPUT] [--wait_for WAIT_FOR]
 
     Run product extraction pipeline.
 
@@ -82,6 +85,9 @@ python -m playwright install --dry-run
       --headless            Run browser in headless mode
       --dump_to DUMP_TO     Output file location (if set, will also print)
       --wait_for WAIT_FOR   Delay before returning HTML in seconds (default: 10)
+      --translate           Translate product data to English
+      --translated_output TRANSLATED_OUTPUT
+                            Output file for translated data (defaults to [original_filename]_translated.json if not specified)
     ```
 
    a. The first time you run the script, use it in headful mode (without `--headless` flag) to sign in to 1688.com:
@@ -96,7 +102,12 @@ python -m playwright install --dry-run
    python main.py --pipeline alibaba_1688 --url https://detail.1688.com/offer/865196865369.html --dump_to data/example_product_data.json --headless
    ```
 
-   d. To improve performance, you can adjust the crawling delay using the `--wait_for` parameter:
+   d. To translate the product data to English, add the `--translate` flag:
+   ```bash
+   python main.py --pipeline alibaba_1688 --url https://detail.1688.com/offer/865196865369.html --dump_to data/example_product_data.json --headless --translate
+   ```
+
+   e. To improve performance, you can adjust the crawling delay using the `--wait_for` parameter:
    ```bash
    # Use a shorter delay (2 seconds instead of the default 10 seconds)
    python main.py --pipeline alibaba_1688 --url https://detail.1688.com/offer/865196865369.html --headless --wait_for 2
@@ -122,23 +133,56 @@ python -m playwright install --dry-run
    python serv.py
    ```
 
-   b. The API will be available at http://localhost:8000 with the following endpoints:
-      - `/` - Basic information about the API
-      - `/extract` - Extract product data from a URL
+   b. Open the demo interface in your browser:
+      - http://localhost:8000/demo - Interactive demo UI for testing extraction and translation
 
-   c. Example API usage with curl:
+   c. The API will be available with the following endpoints:
+      - `/api` - Basic information about the API
+      - `/extract` - Extract product data from a URL
+      - `/job_status/{job_id}` - Check the status of a translation job
+      - `/ws/extract` - WebSocket endpoint for real-time extraction and translation updates
+
+   d. Example API usage with curl:
    ```bash
    # Extract data from a URL with default settings (pipeline=alibaba_1688, wait_for=2)
    curl -X GET "http://localhost:8000/extract?url=https://detail.1688.com/offer/865196865369.html"
 
+   # Extract and translate data (returns a job_id for polling)
+   curl -X GET "http://localhost:8000/extract?url=https://detail.1688.com/offer/865196865369.html&translate=true"
+
+   # Check translation job status
+   curl -X GET "http://localhost:8000/job_status/{job_id}"
+
    # Extract data with a custom wait time (1 second)
    curl -X GET "http://localhost:8000/extract?url=https://detail.1688.com/offer/865196865369.html&wait_for=1"
-
-   # Extract data with a different pipeline
-   curl -X GET "http://localhost:8000/extract?url=https://detail.1688.com/offer/865196865369.html&pipeline_name=custom_pipeline"
    ```
 
-   d. The API runs in headless mode by default with a shorter wait time (2 seconds) for better performance. This is suitable for production environments where browser UI is not needed.
+   e. The API runs in headless mode by default with a shorter wait time (2 seconds) for better performance. This is suitable for production environments where browser UI is not needed.
+
+## Translation Features
+
+The framework includes a robust Chinese to English translation system designed specifically for e-commerce product data:
+
+- **Intelligent Field Detection**: Automatically identifies which fields should be translated and which should remain unchanged (e.g., SKUs, measurements, URLs)
+- **Multi-pass Processing**: Uses multiple passes to ensure all items are translated, even if some are missed in initial attempts
+- **Chunked Processing**: Processes data in manageable chunks to handle large product datasets efficiently
+- **Detailed Status Tracking**: Each field is marked with its translation status:
+  - `TRANSLATED`: Successfully translated from Chinese to English
+  - `NOT_NEEDED`: Identified as not requiring translation (e.g., numbers, codes)
+  - `MISSED`: Failed to translate after multiple attempts
+- **Real-time Progress Updates**: When using the WebSocket API, receive chunk-by-chunk progress updates during translation
+
+## Interactive Demo UI
+
+The framework includes a browser-based demo interface for testing extraction and translation:
+
+1. Start the server: `python serv.py`
+2. Open http://localhost:8000/demo in your browser
+3. Enter a product URL
+4. Select translation options and wait time
+5. Choose between WebSocket (real-time updates) or REST API extraction
+6. View extraction progress in real-time
+7. See the original and translated data side-by-side
 
 ## Project Structure
 
@@ -146,13 +190,18 @@ python -m playwright install --dry-run
   - `pipeline.py`: Pipeline class for orchestrating data extraction
   - `slice.py`: Slice class for defining extraction units
   - `registry.py`: Registry for pipeline management
+  - `translate.py`: Translation functionality for Chinese to English conversion
+  - `prompts.py`: System prompts for translation AI
   - `pipelines/`: Individual pipeline implementations
     - `alibaba_1688.py`: 1688.com-specific pipeline
 - `utils/`: Utility scripts
   - `highlight.js`: JavaScript for highlighting elements
   - `simHover.js`: JavaScript for simulating hover events
+- `static/`: Frontend assets
+  - `index.html`: Demo UI for extraction and translation testing
 - `data/`: Output directory for extracted data
-- `main.py`: Main script to run the extraction
+- `main.py`: CLI script to run the extraction
+- `serv.py`: API server with WebSocket support
 
 ## Creating Custom Pipelines
 
